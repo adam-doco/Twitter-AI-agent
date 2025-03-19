@@ -1,0 +1,14 @@
+# 默认所有者
+*       @adam-doco
+
+# 前端文件
+/pages/  @adam-doco
+/css/    @adam-doco
+/js/     @adam-doco
+
+# 文档文件
+*.md     @adam-doco
+/Docs/   @adam-doco
+
+# GitHub相关文件
+/.github/ @adam-doco 

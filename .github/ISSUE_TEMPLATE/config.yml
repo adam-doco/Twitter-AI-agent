@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Twitter AI自动运营平台社区讨论
+    url: https://github.com/adam-doco/Twitter-AI-agent/discussions
+    about: 有关使用、最佳实践或一般问题的讨论。
+  - name: 文档
+    url: https://github.com/adam-doco/Twitter-AI-agent/blob/main/README.md
+    about: 查看项目文档以获取帮助。 
