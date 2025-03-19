@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 卡片动效 */
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-blue-600"></i>
+                        <span class="ml-3">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b z-10">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="height: 64px;">
+                <button class="md:hidden text-gray-500 hover:text-gray-700" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <!-- 时间过滤器 -->
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg" id="todayBtn">今日</button>
+                    <button class="px-3 py-1.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300" id="weekBtn">本周</button>
+                    <button class="px-3 py-1.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300" id="monthBtn">本月</button>
+                    <button class="px-3 py-1.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300" id="allBtn">全部</button>
+                </div>
+                
+                <div class="flex items-center">
+                    <!-- 右上角按钮已移除 -->
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6">主页</h1>
+                
+                <!-- 快速统计卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- 粉丝统计 -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6 stats-card fade-in">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">粉丝总数</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">+4.6%</span>
+                        </div>
+                        <div class="mt-2 flex items-end">
+                            <p class="text-3xl font-bold text-gray-900">5,872</p>
+                            <p class="text-green-600 ml-2 text-sm flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>+215</span>
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600 rounded-full" style="width: 72%"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">距离目标还有 1,128</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 互动率 -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6 stats-card fade-in delay-1">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">平均互动率</h3>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">+1.2%</span>
+                        </div>
+                        <div class="mt-2 flex items-end">
+                            <p class="text-3xl font-bold text-gray-900">3.8%</p>
+                            <p class="text-green-600 ml-2 text-sm flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i>
+                                <span>+0.4%</span>
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full" style="width: 58%"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">行业平均: 2.1%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 推文发布 -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6 stats-card fade-in delay-2">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">本周推文</h3>
+                            <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">持平</span>
+                        </div>
+                        <div class="mt-2 flex items-end">
+                            <p class="text-3xl font-bold text-gray-900">12</p>
+                            <p class="text-gray-600 ml-2 text-sm flex items-center">
+                                <i class="fas fa-equals mr-1"></i>
+                                <span>与上周持平</span>
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-yellow-500 rounded-full" style="width: 60%"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">发布频率: 中等</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 点击率 -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6 stats-card fade-in delay-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">链接点击率</h3>
+                            <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">-0.8%</span>
+                        </div>
+                        <div class="mt-2 flex items-end">
+                            <p class="text-3xl font-bold text-gray-900">2.1%</p>
+                            <p class="text-red-600 ml-2 text-sm flex items-center">
+                                <i class="fas fa-arrow-down mr-1"></i>
+                                <span>-0.2%</span>
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-purple-500 rounded-full" style="width: 32%"></div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">行业平均: 2.8%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 图表区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- 粉丝增长趋势 -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6 fade-in delay-1">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">粉丝增长趋势</h3>
+                            <div class="flex items-center text-sm">
+                                <span class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span>
+                                <span class="text-gray-500 mr-4">实际</span>
+                                <span class="inline-block w-3 h-3 rounded-full bg-blue-200 mr-1"></span>
+                                <span class="text-gray-500">预测</span>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="followersChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 互动类型分布 -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6 fade-in delay-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">互动类型分布</h3>
+                        <div class="h-64">
+                            <canvas id="engagementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 内容效果分析 -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 fade-in delay-3">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">内容效果分析</h3>
+                        <div class="flex">
+                            <select class="text-sm border border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option>按互动率排序</option>
+                                <option>按转发数排序</option>
+                                <option>按点赞数排序</option>
+                                <option>按时间排序</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- 内容表格 -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">内容</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">发布时间</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">互动率</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">点赞</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">转发</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">评论</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">表现</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- 默认显示的3条数据 -->
+                                <tr class="content-analysis-row">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">科技创新不止于硬件，更在于思维方式的革新。你认为未来5年最具颠覆性的技术是？#科技创新 #未来趋势</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #科技创新 #未来趋势</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">今天 18:30</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-green-600">6.8%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">189</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">32</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">56</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">高效内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">5个提升工作效率的AI工具，第3个让我惊艳！#AI工具 #效率提升</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #AI工具 #效率提升</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">昨天 09:00</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-green-600">4.2%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">142</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">76</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">24</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">高效内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">周三灵感：工作中感到倦怠？试试"番茄工作法" - 25分钟专注工作，5分钟休息。你有什么提高效率的秘诀？ #工作效率 #时间管理</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #工作效率 #时间管理</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">前天 10:15</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-yellow-600">2.1%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">67</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">24</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">18</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">中等内容</span>
+                                    </td>
+                                </tr>
+                                
+                                <!-- 默认隐藏的7条数据 -->
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">AI对创意行业的影响：从威胁到助力的转变 #AI创意 #创意产业</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #AI创意 #创意产业</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">3天前 14:20</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-blue-600">3.2%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">112</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">42</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">28</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">良好内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">数据驱动的决策：企业如何利用大数据提升竞争力？ #大数据 #商业决策</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #大数据 #商业决策</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">4天前 09:45</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-blue-600">3.7%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">135</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">52</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">34</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">良好内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">远程工作一年后的反思：哪些习惯帮助我提高了生产力？ #远程工作 #生产力</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #远程工作 #生产力</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">5天前 11:30</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-green-600">4.1%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">155</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">63</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">42</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">高效内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">投票：你更喜欢哪种类型的科技内容？1.深度教程 2.新品评测 3.行业趋势 4.实用技巧 #用户调研</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #用户调研 #内容偏好</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">6天前 16:00</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-green-600">5.3%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">87</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">25</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">132</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">高效内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">如何在信息过载的时代保持专注？三个实用的注意力管理技巧 #注意力 #效率管理</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #注意力 #效率管理</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">7天前 08:40</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-blue-600">3.1%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">92</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">39</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">24</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">良好内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">产品经理必备的五个思维模型，帮你更好地理解用户需求 #产品思维 #用户需求</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #产品思维 #用户需求</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">8天前 13:20</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-yellow-600">2.6%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">78</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">31</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">19</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">中等内容</span>
+                                    </td>
+                                </tr>
+                                <tr class="content-analysis-row collapsed hidden">
+                                    <td class="px-4 py-4 whitespace-normal max-w-md">
+                                        <div class="flex items-start">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                                <i class="fas fa-user text-sm"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-gray-900">每天15分钟的阅读如何改变我的职业发展轨迹 #阅读习惯 #职业成长</p>
+                                                <p class="text-xs text-gray-500 mt-1">标签: #阅读习惯 #职业成长</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">9天前 17:15</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="text-sm font-medium text-blue-600">3.8%</span>
+                                    </td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">125</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">48</td>
+                                    <td class="px-4 py-4 text-sm text-gray-500 text-center">31</td>
+                                    <td class="px-4 py-4 text-center">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">良好内容</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 查看更多按钮 -->
+                    <div class="mt-4 text-center">
+                        <button id="expandContentAnalysis" class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 transition-colors">
+                            <span>查看更多</span>
+                            <i class="fas fa-chevron-down ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- AI优化建议 -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 fade-in delay-4">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">AI优化建议</h3>
+                        <span class="text-xs text-gray-500">最近更新: 今天 09:30</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- 建议1 -->
+                        <div class="p-4 border border-blue-100 bg-blue-50 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                    <i class="fas fa-lightbulb text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">增加互动话题推文频率</h4>
+                                    <p class="mt-1 text-sm text-gray-600">数据显示，包含投票或问题的推文互动率平均高出62%。建议每周至少发布3条互动型推文。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 建议2 -->
+                        <div class="p-4 border border-blue-100 bg-blue-50 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                    <i class="fas fa-chart-line text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">优化发布时间</h4>
+                                    <p class="mt-1 text-sm text-gray-600">分析表明，18:00-20:00发布的内容互动率最高。建议将重要内容安排在这个时间段发布。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 建议3 -->
+                        <div class="p-4 border border-blue-100 bg-blue-50 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                    <i class="fas fa-hashtag text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">关注热门标签</h4>
+                                    <p class="mt-1 text-sm text-gray-600">当前热门话题标签：#科技创新、#AI工具、#职场效率、#未来趋势。建议在内容中适当融入这些标签。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 建议4 -->
+                        <div class="p-4 border border-blue-100 bg-blue-50 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                    <i class="fas fa-reply text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-gray-900">提高回复率</h4>
+                                    <p class="mt-1 text-sm text-gray-600">对用户评论的回复率从上周的78%下降到62%。建议设置回复提醒，确保及时回应用户互动，提升粉丝粘性。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+        
+        // 粉丝增长趋势图表
+        const followersCtx = document.getElementById('followersChart').getContext('2d');
+        const followersChart = new Chart(followersCtx, {
+            type: 'line',
+            data: {
+                labels: ['4/10', '4/11', '4/12', '4/13', '4/14', '4/15', '4/16', '4/17', '4/18', '4/19', '4/20', '4/21'],
+                datasets: [
+                    {
+                        label: '实际粉丝数',
+                        data: [5500, 5540, 5580, 5620, 5680, 5720, 5760, 5800, 5840, 5872, null, null],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: '预测粉丝数',
+                        data: [null, null, null, null, null, null, null, null, null, 5872, 5910, 5960],
+                        borderColor: '#93c5fd',
+                        backgroundColor: 'rgba(147, 197, 253, 0.1)',
+                        borderDashed: [5, 5],
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 5400
+                    }
+                }
+            }
+        });
+        
+        // 互动类型分布图表
+        const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+        const engagementChart = new Chart(engagementCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['点赞', '转发', '评论', '引用'],
+                datasets: [
+                    {
+                        data: [65, 15, 12, 8],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+        
+        // 添加时间过滤器按钮点击功能
+        document.getElementById('todayBtn').addEventListener('click', function() {
+            setActiveTimeFilter(this);
+            // 这里添加今日数据过滤逻辑
+        });
+        
+        document.getElementById('weekBtn').addEventListener('click', function() {
+            setActiveTimeFilter(this);
+            // 这里添加本周数据过滤逻辑
+        });
+        
+        document.getElementById('monthBtn').addEventListener('click', function() {
+            setActiveTimeFilter(this);
+            // 这里添加本月数据过滤逻辑
+        });
+        
+        document.getElementById('allBtn').addEventListener('click', function() {
+            setActiveTimeFilter(this);
+            // 这里添加全部数据过滤逻辑
+        });
+        
+        // 设置活跃的时间过滤器按钮
+        function setActiveTimeFilter(button) {
+            // 重置所有按钮样式
+            document.querySelectorAll('.flex.items-center.space-x-2 button').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+            });
+            
+            // 设置当前按钮为活跃状态
+            button.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-300');
+            button.classList.add('bg-blue-600', 'text-white');
+        }
+        
+        // 内容效果分析展开/折叠功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const expandButton = document.getElementById('expandContentAnalysis');
+            const collapsedRows = document.querySelectorAll('.content-analysis-row.collapsed');
+            
+            expandButton.addEventListener('click', function() {
+                collapsedRows.forEach(row => {
+                    row.classList.toggle('hidden');
+                });
+                
+                // 切换按钮文本
+                if (expandButton.querySelector('span').textContent === '查看更多') {
+                    expandButton.querySelector('span').textContent = '收起';
+                    expandButton.querySelector('i').classList.remove('fa-chevron-down');
+                    expandButton.querySelector('i').classList.add('fa-chevron-up');
+                } else {
+                    expandButton.querySelector('span').textContent = '查看更多';
+                    expandButton.querySelector('i').classList.remove('fa-chevron-up');
+                    expandButton.querySelector('i').classList.add('fa-chevron-down');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

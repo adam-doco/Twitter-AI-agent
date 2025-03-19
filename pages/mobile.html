@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端预览 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        /* 手机框架样式 */
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 30px;
+            background-color: #000;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            z-index: 10;
+        }
+        
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 底部导航样式 */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: #2563eb;
+        }
+        
+        /* 内容滚动区域 */
+        .screen-content {
+            height: calc(100% - 80px);
+            overflow-y: auto;
+        }
+        
+        /* 自定义滚动条 */
+        .screen-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .screen-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .screen-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        
+        /* 轮播指示器样式 */
+        .carousel-indicator {
+            position: absolute;
+            bottom: 90px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            z-index: 50;
+        }
+        
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            margin: 0 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator-dot.active {
+            background-color: #2563eb;
+            width: 16px;
+            border-radius: 4px;
+        }
+        
+        /* 轮播容器 */
+        .carousel-container {
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+        
+        .carousel-screen {
+            min-width: 100%;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div class="phone-frame">
+        <div class="phone-notch"></div>
+        
+        <div class="phone-screen">
+            <!-- 轮播容器 -->
+            <div class="carousel-container" style="transform: translateX(0);">
+                <!-- AI聊天页面 -->
+                <div class="carousel-screen screen-content">
+                    <!-- 顶部状态栏 -->
+                    <div class="bg-white px-4 py-3 sticky top-0 z-50 border-b">
+                        <div class="flex items-center">
+                            <h1 class="text-lg font-bold text-gray-900">AI对话</h1>
+                            <div class="ml-auto">
+                                <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                                    <i class="fas fa-ellipsis text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 聊天内容 -->
+                    <div class="p-4 space-y-6">
+                        <!-- AI欢迎消息 -->
+                        <div class="flex animate-fadeInUp">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="ml-3 bg-white shadow-sm p-3 rounded-lg rounded-tl-none max-w-xs">
+                                <p class="text-sm text-gray-800">你好！我是你的Twitter运营AI助手。我已经分析了你的账号数据，近期有几个观察：</p>
+                                <ul class="mt-2 ml-4 list-disc space-y-1 text-sm text-gray-700">
+                                    <li>互动率比上周提升了12%</li>
+                                    <li>粉丝增长趋势良好</li>
+                                    <li>最佳发布时间: 18:00-20:00</li>
+                                </ul>
+                                <p class="mt-2 text-sm text-gray-800">需要我帮你制定内容计划吗？</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户消息 -->
+                        <div class="flex justify-end animate-fadeInUp delay-1">
+                            <div class="mr-3 bg-blue-600 shadow-sm p-3 rounded-lg rounded-tr-none max-w-xs">
+                                <p class="text-sm text-white">帮我分析一下#科技创新话题表现更好的原因，以及如何提高回复率？</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                            </div>
+                        </div>
+                        
+                        <!-- AI响应 -->
+                        <div class="flex animate-fadeInUp delay-2">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="ml-3 bg-white shadow-sm p-3 rounded-lg rounded-tl-none max-w-xs">
+                                <p class="text-sm text-gray-800">#科技创新话题表现更好的原因：</p>
+                                <ol class="mt-2 ml-4 list-decimal space-y-1 text-sm text-gray-700">
+                                    <li>你的核心受众对此兴趣高</li>
+                                    <li>内容质量高，提供了有价值的洞见</li>
+                                    <li>发布时间更符合目标受众活跃时段</li>
+                                </ol>
+                                <p class="mt-2 text-sm text-gray-800">提高回复率建议：</p>
+                                <ul class="mt-2 ml-4 list-disc space-y-1 text-sm text-gray-700">
+                                    <li>在推文中加入直接提问</li>
+                                    <li>对收到的回复及时回应</li>
+                                    <li>发起小型调查或讨论话题</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 底部输入区域 -->
+                    <div class="fixed bottom-[60px] left-0 right-0 bg-white border-t p-2">
+                        <div class="flex items-center bg-gray-100 rounded-full py-2 px-4">
+                            <input type="text" placeholder="输入消息..." class="flex-1 bg-transparent outline-none text-sm">
+                            <button class="ml-2 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                                <i class="fas fa-paper-plane text-white text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 生成推文页面 -->
+                <div class="carousel-screen screen-content">
+                    <!-- 顶部状态栏 -->
+                    <div class="bg-white px-4 py-3 sticky top-0 z-50 border-b">
+                        <div class="flex items-center">
+                            <h1 class="text-lg font-bold text-gray-900">生成推文</h1>
+                            <div class="ml-auto">
+                                <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                                    <i class="fas fa-ellipsis text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 生成参数区域 -->
+                    <div class="p-4">
+                        <div class="bg-white rounded-xl shadow-sm p-4 animate-fadeInUp">
+                            <h2 class="text-base font-semibold text-gray-800 mb-3">推文生成参数</h2>
+                            
+                            <!-- 主题输入 -->
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">主题</label>
+                                <input type="text" placeholder="输入推文主题" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                            </div>
+                            
+                            <!-- 风格选择 -->
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">推文风格</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="text-center p-2 border border-blue-500 rounded-lg bg-blue-50 text-blue-600">
+                                        <i class="fas fa-briefcase text-sm"></i>
+                                        <span class="block text-xs mt-1">专业</span>
+                                    </div>
+                                    <div class="text-center p-2 border border-gray-300 rounded-lg">
+                                        <i class="fas fa-face-laugh text-sm text-gray-500"></i>
+                                        <span class="block text-xs mt-1 text-gray-500">幽默</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 生成按钮 -->
+                            <button class="w-full py-2 bg-blue-600 text-white font-medium rounded-lg text-sm flex items-center justify-center">
+                                <i class="fas fa-magic mr-2"></i>
+                                <span>生成推文</span>
+                            </button>
+                        </div>
+                        
+                        <!-- 生成结果 -->
+                        <div class="mt-4 space-y-3">
+                            <h2 class="text-sm font-semibold text-gray-700">生成结果</h2>
+                            
+                            <!-- 推文卡片 -->
+                            <div class="bg-white rounded-xl shadow-sm p-4 animate-fadeInUp delay-1">
+                                <div class="border border-gray-200 rounded-lg p-3 mb-3">
+                                    <div class="flex items-center mb-2">
+                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                                        <div class="ml-2">
+                                            <p class="text-sm font-semibold text-gray-900">张三 <span class="text-gray-500 font-normal text-xs">@zhangsan</span></p>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-900">5款2025年最值得关注的AI工具大比拼！👀 #1专注效率提升，#3简直改变工作流程！哪款是你的最爱？投票告诉我吧！ #AI工具 #效率提升</p>
+                                </div>
+                                <div class="flex justify-between">
+                                    <button class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-700">
+                                        <i class="fas fa-pen-to-square mr-1"></i>
+                                        <span>编辑</span>
+                                    </button>
+                                    <button class="text-xs bg-blue-50 px-2 py-1 rounded text-blue-700">
+                                        <i class="fas fa-calendar-plus mr-1"></i>
+                                        <span>发送到待发布</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 数据分析页面 -->
+                <div class="carousel-screen screen-content">
+                    <!-- 顶部状态栏 -->
+                    <div class="bg-white px-4 py-3 sticky top-0 z-50 border-b">
+                        <div class="flex items-center">
+                            <h1 class="text-lg font-bold text-gray-900">数据分析</h1>
+                            <div class="ml-auto">
+                                <button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100">
+                                    <i class="fas fa-ellipsis text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据内容 -->
+                    <div class="p-4 space-y-4">
+                        <!-- 时间选择器 -->
+                        <div class="flex space-x-2 text-sm animate-fadeInUp">
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded-full">今日</button>
+                            <button class="px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full">本周</button>
+                            <button class="px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full">本月</button>
+                        </div>
+                        
+                        <!-- 数据卡片 -->
+                        <div class="bg-white rounded-xl shadow-sm p-4 animate-fadeInUp delay-1">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-sm font-medium text-gray-500">粉丝总数</h3>
+                                <span class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full">+4.6%</span>
+                            </div>
+                            <div class="flex items-end">
+                                <p class="text-2xl font-bold text-gray-900">5,872</p>
+                                <p class="text-green-600 ml-2 text-xs flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    <span>+215</span>
+                                </p>
+                            </div>
+                            <div class="mt-2">
+                                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-600 rounded-full" style="width: 72%"></div>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">距离目标还有 1,128</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 互动数据卡片 -->
+                        <div class="bg-white rounded-xl shadow-sm p-4 animate-fadeInUp delay-2">
+                            <h3 class="text-sm font-medium text-gray-500 mb-3">互动数据</h3>
+                            <div class="flex justify-between">
+                                <div class="text-center">
+                                    <p class="text-xl font-bold text-gray-900">142</p>
+                                    <p class="text-xs text-gray-500">点赞</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-xl font-bold text-gray-900">76</p>
+                                    <p class="text-xs text-gray-500">转发</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-xl font-bold text-gray-900">24</p>
+                                    <p class="text-xs text-gray-500">评论</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-xl font-bold text-gray-900">3.8%</p>
+                                    <p class="text-xs text-gray-500">互动率</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI建议卡片 -->
+                        <div class="bg-white rounded-xl shadow-sm p-4 animate-fadeInUp delay-3">
+                            <h3 class="text-sm font-medium text-gray-500 mb-3">AI优化建议</h3>
+                            
+                            <div class="p-3 border border-blue-100 bg-blue-50 rounded-lg mb-2">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                        <i class="fas fa-lightbulb text-xs"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="text-xs font-medium text-gray-900">优化发布时间</h4>
+                                        <p class="text-xs text-gray-600 mt-0.5">18:00-20:00发布的互动率最高</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border border-blue-100 bg-blue-50 rounded-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white">
+                                        <i class="fas fa-hashtag text-xs"></i>
+                                    </div>
+                                    <div class="ml-2">
+                                        <h4 class="text-xs font-medium text-gray-900">关注热门标签</h4>
+                                        <p class="text-xs text-gray-600 mt-0.5">#科技创新、#AI工具表现最佳</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 轮播指示器 -->
+            <div class="carousel-indicator">
+                <div class="indicator-dot active"></div>
+                <div class="indicator-dot"></div>
+                <div class="indicator-dot"></div>
+            </div>
+            
+            <!-- 底部导航 -->
+            <div class="bottom-nav flex">
+                <div class="nav-item active">
+                    <i class="fas fa-comment-dots text-lg"></i>
+                    <span class="text-xs mt-1">AI对话</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-magic text-lg"></i>
+                    <span class="text-xs mt-1">生成</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-list-check text-lg"></i>
+                    <span class="text-xs mt-1">推文</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-line text-lg"></i>
+                    <span class="text-xs mt-1">主页</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-gear text-lg"></i>
+                    <span class="text-xs mt-1">设置</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 轮播功能
+        const dots = document.querySelectorAll('.indicator-dot');
+        const carousel = document.querySelector('.carousel-container');
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        // 屏幕切换函数
+        function switchScreen(index) {
+            // 更新轮播位置
+            carousel.style.transform = `translateX(-${index * 100}%)`;
+            
+            // 更新指示器
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            // 更新底部导航
+            navItems.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // 为指示器添加点击事件
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                switchScreen(index);
+            });
+        });
+        
+        // 为底部导航添加点击事件
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                switchScreen(index);
+            });
+        });
+    </script>
+</body>
+</html>

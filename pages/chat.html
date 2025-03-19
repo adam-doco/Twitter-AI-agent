@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI对话 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 打字机效果 */
+        .typing-animation::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* 气泡样式 */
+        .user-bubble {
+            border-radius: 18px 18px 0 18px;
+        }
+        
+        .ai-bubble {
+            border-radius: 18px 18px 18px 0;
+        }
+        
+        /* 输入框样式确保显示 */
+        .input-area {
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+            z-index: 20;
+            width: 100%;
+        }
+        
+        /* 聊天区域滚动修复 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            height: calc(100vh - 220px); /* 调整聊天区域高度，适应更高的输入框 */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .chat-container {
+                grid-template-columns: 1fr;
+            }
+            .goal-sidebar {
+                display: none;
+            }
+            .chat-area {
+                height: calc(100vh - 150px);
+            }
+        }
+        
+        /* 确保AI偏好设置面板能完全滚动 */
+        .goal-sidebar {
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+        }
+        
+        .goal-sidebar > div:last-child {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        /* 开关按钮样式 */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2563eb;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 删除顶部导航栏，解决顶部空白问题 -->
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-hidden p-0">
+            <div class="h-full grid grid-cols-1 lg:grid-cols-4 chat-container" style="min-height: 0;">
+                <!-- 主聊天区域 -->
+                <div class="col-span-3 flex flex-col h-full">
+                    <!-- AI助手信息 -->
+                    <div class="p-4 bg-white border-b flex items-center" style="height: 64px;">
+                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h2 class="font-semibold text-gray-800">Twitter运营AI助手</h2>
+                            <p class="text-xs text-gray-500">已连接 · 最近更新: 今天 09:15</p>
+                        </div>
+                        <div class="ml-auto flex">
+                            <button class="md:hidden text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100" id="openSidebar">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 聊天区 -->
+                    <div class="chat-area p-4 space-y-6 bg-gray-50">
+                        <!-- AI欢迎消息 -->
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="ml-3 bg-white shadow-sm p-4 ai-bubble max-w-3xl">
+                                <p class="text-gray-800">你好！我是你的Twitter运营AI助手。我已经分析了你的账号数据，近期有几个观察：</p>
+                                <ul class="mt-2 ml-4 list-disc space-y-1 text-gray-700">
+                                    <li>互动率比上周提升了12%，主要来自话题标签#科技创新的内容</li>
+                                    <li>粉丝增长趋势良好，但回复率有下降趋势</li>
+                                    <li>最佳发布时间点集中在工作日18:00-20:00</li>
+                                </ul>
+                                <p class="mt-2 text-gray-800">需要我帮你制定下周的内容计划吗？或者你有其他问题想讨论？</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 用户消息 -->
+                        <div class="flex items-start justify-end">
+                            <div class="mr-3 bg-blue-600 shadow-sm p-4 user-bubble max-w-3xl">
+                                <p class="text-white">帮我分析一下为什么#科技创新话题表现更好，我们能从中学到什么？另外，如何提高回复率？</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                            </div>
+                        </div>
+                        
+                        <!-- AI响应 -->
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="ml-3 bg-white shadow-sm p-4 ai-bubble max-w-3xl">
+                                <p class="text-gray-800 typing-animation">根据数据分析，#科技创新话题表现更好的原因有：</p>
+                                <ol class="mt-2 ml-4 list-decimal space-y-1 text-gray-700">
+                                    <li>你的核心受众群体对科技创新领域有较高兴趣</li>
+                                    <li>相关推文发布时间更符合目标受众的活跃时段</li>
+                                    <li>内容质量高，且包含了有价值的洞见，提供了实用信息</li>
+                                    <li>使用了更吸引人的图片和简洁明了的表述</li>
+                                </ol>
+                                <p class="mt-3 text-gray-800">针对提高回复率，建议：</p>
+                                <ul class="mt-2 ml-4 list-disc space-y-1 text-gray-700">
+                                    <li>在推文中加入直接提问，鼓励用户分享观点</li>
+                                    <li>对收到的回复进行及时回应，形成对话</li>
+                                    <li>尝试发起小型调查或讨论话题</li>
+                                    <li>针对热点事件提出开放性问题</li>
+                                </ul>
+                                <p class="mt-3 text-gray-800">建议下周增加2-3条与#科技创新相关的互动型推文，我可以帮你生成一些示例。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入区 -->
+                    <div class="input-area p-4 bg-white border-t">
+                        <div class="flex items-end bg-gray-50 rounded-lg p-3 relative">
+                            <textarea class="w-full bg-transparent outline-none resize-none max-h-48 text-gray-700" 
+                                      placeholder="输入消息..." rows="3"></textarea>
+                            <div class="flex items-center space-x-2 ml-3">
+                                <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-200">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-2 px-2">
+                            <div class="text-xs text-gray-500">
+                                <span>Shift + Enter 换行</span>
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                <i class="fas fa-bolt text-yellow-500"></i>
+                                <span>AI调用量: 234/500</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧AI偏好设置面板 (原为运营目标概览) -->
+                <div class="hidden lg:block lg:col-span-1 border-l bg-white overflow-y-auto goal-sidebar h-full">
+                    <div class="p-4 border-b sticky top-0 bg-white z-10 flex items-center" style="height: 64px;">
+                        <h3 class="font-semibold text-gray-800">AI偏好设置</h3>
+                    </div>
+                    
+                    <div class="p-4 space-y-6 pb-20">
+                        <!-- 系统提示词设置 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">系统提示词</h4>
+                            <p class="text-xs text-gray-500 mb-2">自定义AI的行为和角色定位</p>
+                            <textarea class="w-full h-24 px-3 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" 
+                                  placeholder="例如：你是一位专业的Twitter运营专家，擅长社交媒体营销策略..."></textarea>
+                            <div class="flex justify-end mt-2">
+                                <button class="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    应用
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 提示词模板 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">提示词模板</h4>
+                            <div class="space-y-2">
+                                <div class="p-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100">
+                                    <p class="text-xs font-medium text-gray-700">Twitter运营专家</p>
+                                    <p class="text-xs text-gray-500 truncate">你是一位Twitter营销专家...</p>
+                                </div>
+                                <div class="p-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100">
+                                    <p class="text-xs font-medium text-gray-700">内容创作者</p>
+                                    <p class="text-xs text-gray-500 truncate">你是一位专业内容创作者...</p>
+                                </div>
+                                <div class="p-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100">
+                                    <p class="text-xs font-medium text-gray-700">数据分析师</p>
+                                    <p class="text-xs text-gray-500 truncate">你是一位社交媒体数据分析师...</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推文风格偏好 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">推文风格偏好</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>专业性</span>
+                                        <span>休闲</span>
+                                    </div>
+                                    <input type="range" min="1" max="5" value="4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>严肃</span>
+                                        <span>幽默</span>
+                                    </div>
+                                    <input type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span>简洁</span>
+                                        <span>详细</span>
+                                    </div>
+                                    <input type="range" min="1" max="5" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 内容主题偏好 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">内容主题偏好</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">#科技创新</span>
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">#AI工具</span>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">#职场效率</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">#未来趋势</span>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">#产品设计</span>
+                                <button class="text-xs border border-dashed border-gray-300 px-2 py-1 rounded-full text-gray-600 hover:text-blue-600">
+                                    + 添加主题
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 自动学习 -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700">AI持续学习</h4>
+                                <p class="text-xs text-gray-500 mt-1">启用后，AI将根据互动效果自动调整生成策略</p>
+                            </div>
+                            <div class="relative inline-block w-10 h-5 transition duration-200 ease-in-out rounded-full">
+                                <input type="checkbox" checked id="aiLearning" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                <label for="aiLearning" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                            </div>
+                        </div>
+                        
+                        <!-- 记忆保留 -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700">对话记忆</h4>
+                                <p class="text-xs text-gray-500 mt-1">AI将记住过去的对话内容和您的偏好</p>
+                            </div>
+                            <div class="relative inline-block w-10 h-5 transition duration-200 ease-in-out rounded-full">
+                                <input type="checkbox" checked id="memoryRetention" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                <label for="memoryRetention" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                            </div>
+                        </div>
+                        
+                        <!-- 响应速度 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">响应速度</h4>
+                            <div class="flex items-center">
+                                <span class="text-xs text-gray-500 mr-2">精细</span>
+                                <input type="range" min="1" max="3" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <span class="text-xs text-gray-500 ml-2">快速</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成推文 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 推文卡片动效 */
+        .tweet-card {
+            transition: all 0.3s ease;
+        }
+        
+        .tweet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 生成动画 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .animate-pulse {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* 高级选项动画 */
+        .advanced-options {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        
+        .advanced-options.active {
+            max-height: 500px; /* 足够大的值以确保内容显示完全 */
+        }
+        
+        /* 旋转图标动画 */
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .rotate-icon.active {
+            transform: rotate(180deg);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b z-10">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="height: 64px;">
+                <button class="md:hidden text-gray-500 hover:text-gray-700" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex items-center ml-auto">
+                    <!-- 右上角按钮已移除 -->
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6">AI推文生成</h1>
+                
+                <!-- 输入参数区域 -->
+                <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">推文生成参数</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- 主题输入 -->
+                        <div>
+                            <label for="topic" class="block text-sm font-medium text-gray-700 mb-1">推文主题</label>
+                            <input type="text" id="topic" placeholder="输入推文主题，如 "AI工具对比" 或 "职场效率提升"" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- 推文要求输入框 -->
+                        <div>
+                            <label for="requirements" class="block text-sm font-medium text-gray-700 mb-1">推文要求</label>
+                            <textarea id="requirements" placeholder="输入额外的推文生成要求，如语气风格、引用要点等" 
+                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-none" rows="2"></textarea>
+                            <p class="mt-1 text-xs text-gray-500">描述您希望AI生成的推文内容应该包含哪些特定要求或风格</p>
+                        </div>
+                        
+                        <!-- 风格选择 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">推文风格</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div class="relative">
+                                    <input type="radio" name="style" id="style-professional" class="hidden peer">
+                                    <label for="style-professional" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        <i class="fas fa-briefcase text-lg mb-1"></i>
+                                        <span class="block text-sm">专业</span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <input type="radio" name="style" id="style-humor" class="hidden peer">
+                                    <label for="style-humor" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        <i class="fas fa-face-laugh text-lg mb-1"></i>
+                                        <span class="block text-sm">幽默</span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <input type="radio" name="style" id="style-trending" class="hidden peer" checked>
+                                    <label for="style-trending" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        <i class="fas fa-fire text-lg mb-1"></i>
+                                        <span class="block text-sm">热点追踪</span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <input type="radio" name="style" id="style-interactive" class="hidden peer">
+                                    <label for="style-interactive" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        <i class="fas fa-users text-lg mb-1"></i>
+                                        <span class="block text-sm">互动引导</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 条数选择 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">生成条数</label>
+                            <div class="flex space-x-4">
+                                <div class="relative">
+                                    <input type="radio" name="count" id="count-1" class="hidden peer">
+                                    <label for="count-1" class="block text-center py-2 px-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        1条
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <input type="radio" name="count" id="count-3" class="hidden peer" checked>
+                                    <label for="count-3" class="block text-center py-2 px-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        3条
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <input type="radio" name="count" id="count-5" class="hidden peer">
+                                    <label for="count-5" class="block text-center py-2 px-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                        5条
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 高级选项按钮 -->
+                        <div class="border-t pt-4">
+                            <button type="button" id="advancedOptionsBtn" class="flex items-center text-sm text-gray-600 hover:text-blue-600">
+                                <i class="fas fa-sliders mr-2"></i>
+                                <span>显示高级选项</span>
+                                <i class="fas fa-chevron-down ml-1 rotate-icon" id="advancedOptionsIcon"></i>
+                            </button>
+                            
+                            <!-- 高级选项内容 -->
+                            <div class="advanced-options mt-4 space-y-4" id="advancedOptions">
+                                <!-- 字数限制 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">字数限制</label>
+                                    <div class="flex items-center">
+                                        <input type="range" min="50" max="280" value="180" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" id="charLimit">
+                                        <span class="ml-3 text-sm text-gray-600 min-w-[3rem]" id="charLimitValue">180字</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- 包含媒体选项 -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">媒体建议</label>
+                                    <div class="flex flex-wrap gap-4">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="includeImage" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                                            <label for="includeImage" class="ml-2 text-sm text-gray-700">包含图片建议</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="includeLink" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                                            <label for="includeLink" class="ml-2 text-sm text-gray-700">包含链接建议</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="includePoll" class="w-4 h-4 text-blue-600 rounded border-gray-300">
+                                            <label for="includePoll" class="ml-2 text-sm text-gray-700">包含投票建议</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 话题标签设置 -->
+                                <div>
+                                    <label for="hashtags" class="block text-sm font-medium text-gray-700 mb-1">话题标签设置</label>
+                                    <input type="text" id="hashtags" placeholder="输入需要包含的标签，如 #AI #科技创新（用空格分隔）" 
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <p class="mt-1 text-xs text-gray-500">请确保每个标签前添加 # 符号</p>
+                                </div>
+                                
+                                <!-- 定向受众 -->
+                                <div>
+                                    <label for="audience" class="block text-sm font-medium text-gray-700 mb-1">定向受众</label>
+                                    <select id="audience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="general">通用受众</option>
+                                        <option value="tech">技术爱好者</option>
+                                        <option value="business">企业/商务人士</option>
+                                        <option value="creative">创意/设计人群</option>
+                                        <option value="student">学生/教育工作者</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 提交按钮 -->
+                        <div class="flex justify-end">
+                            <button type="button" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-sparkles mr-2"></i>
+                                <span>生成推文</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 生成结果区域 -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">生成结果</h2>
+                        
+                        <!-- 批量操作按钮 -->
+                        <div class="flex space-x-2">
+                            <button type="button" class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-check-double mr-1.5"></i>
+                                <span>全选</span>
+                            </button>
+                            <button type="button" class="px-3 py-1.5 bg-blue-50 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-calendar-plus mr-1.5"></i>
+                                <span>批量同步</span>
+                            </button>
+                            <button type="button" class="px-3 py-1.5 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-trash-can mr-1.5"></i>
+                                <span>批量删除</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 推文卡片列表 -->
+                    <div class="space-y-4">
+                        <!-- 推文卡片1 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">5款2025年最值得关注的AI工具大比拼！👀 #1 专注效率提升，#3 简直改变工作流程！哪款是你的最爱？投票告诉我吧！ #AI工具 #效率提升 #科技创新</p>
+                                            </div>
+                                            <div class="mt-4 flex">
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-comment"></i>
+                                                    <span class="ml-2">24</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-retweet"></i>
+                                                    <span class="ml-2">76</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm">
+                                                    <i class="far fa-heart"></i>
+                                                    <span class="ml-2">142</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 操作按钮 -->
+                                    <div class="flex mt-3 space-x-2">
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-pen-to-square mr-1.5"></i>
+                                            <span>编辑</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                            <i class="fas fa-calendar-plus mr-1.5"></i>
+                                            <span>发送到待发布</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                            <i class="fas fa-trash-can mr-1.5"></i>
+                                            <span>删除</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推文卡片2 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">科技创新不只是技术进步，更是思维方式的革新。你认为未来5年最值得关注的技术领域是什么？AI？元宇宙？量子计算？还是生物科技？ #未来趋势 #科技创新 #思维革新</p>
+                                            </div>
+                                            <div class="mt-4 flex">
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-comment"></i>
+                                                    <span class="ml-2">42</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-retweet"></i>
+                                                    <span class="ml-2">28</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm">
+                                                    <i class="far fa-heart"></i>
+                                                    <span class="ml-2">97</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 操作按钮 -->
+                                    <div class="flex mt-3 space-x-2">
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-pen-to-square mr-1.5"></i>
+                                            <span>编辑</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                            <i class="fas fa-calendar-plus mr-1.5"></i>
+                                            <span>发送到待发布</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                            <i class="fas fa-trash-can mr-1.5"></i>
+                                            <span>删除</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推文卡片3 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">📊 调查显示：78%的专业人士认为AI将在未来3年重塑他们的工作方式。你已经开始使用AI工具了吗？分享一下你最常用的AI应用吧！ #AI革命 #职场效率 #科技应用</p>
+                                            </div>
+                                            <div class="mt-4 flex">
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-comment"></i>
+                                                    <span class="ml-2">58</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                    <i class="far fa-retweet"></i>
+                                                    <span class="ml-2">31</span>
+                                                </div>
+                                                <div class="flex items-center text-gray-500 text-sm">
+                                                    <i class="far fa-heart"></i>
+                                                    <span class="ml-2">112</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 操作按钮 -->
+                                    <div class="flex mt-3 space-x-2">
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-pen-to-square mr-1.5"></i>
+                                            <span>编辑</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                            <i class="fas fa-calendar-plus mr-1.5"></i>
+                                            <span>发送到待发布</span>
+                                        </button>
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                            <i class="fas fa-trash-can mr-1.5"></i>
+                                            <span>删除</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+        
+        // 高级选项切换功能
+        document.getElementById('advancedOptionsBtn').addEventListener('click', function() {
+            const advancedOptions = document.getElementById('advancedOptions');
+            const icon = document.getElementById('advancedOptionsIcon');
+            
+            advancedOptions.classList.toggle('active');
+            icon.classList.toggle('active');
+            
+            // 更新按钮文本
+            const btnText = this.querySelector('span');
+            if (advancedOptions.classList.contains('active')) {
+                btnText.textContent = '隐藏高级选项';
+            } else {
+                btnText.textContent = '显示高级选项';
+            }
+        });
+        
+        // 字数限制实时显示
+        document.getElementById('charLimit').addEventListener('input', function() {
+            document.getElementById('charLimitValue').textContent = this.value + '字';
+        });
+    </script>
+</body>
+</html> 

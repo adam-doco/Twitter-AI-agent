@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 开关按钮样式 */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #2563eb;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #2563eb;
+        }
+        
+        /* 渐入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b z-10">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="height: 64px;">
+                <button class="md:hidden text-gray-500 hover:text-gray-700" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex items-center ml-auto">
+                    <!-- 右上角按钮已移除 -->
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-5xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6">设置</h1>
+                
+                <!-- 设置分类导航 -->
+                <div class="mb-8 bg-white rounded-lg p-1 inline-flex shadow-sm">
+                    <button class="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white">
+                        账号管理
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100">
+                        发布策略
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100">
+                        AI偏好
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100">
+                        高级设置
+                    </button>
+                </div>
+                
+                <!-- 账号绑定区域 -->
+                <section class="space-y-6 mb-10 fade-in">
+                    <div class="bg-white rounded-2xl shadow-sm">
+                        <!-- 账号头部 -->
+                        <div class="px-6 py-5 border-b">
+                            <h2 class="text-lg font-semibold text-gray-800">Twitter账号绑定</h2>
+                            <p class="mt-1 text-sm text-gray-500">管理连接到此平台的Twitter账号</p>
+                        </div>
+                        
+                        <!-- 账号列表 -->
+                        <div class="px-6 py-5">
+                            <!-- 已绑定账号 -->
+                            <div class="flex items-center justify-between py-3 border-b">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">@zhangsan</p>
+                                        <p class="text-xs text-gray-500">10.5K 粉丝 · 已绑定</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">主账号</span>
+                                    <button class="ml-2 text-sm text-red-600 hover:text-red-800 unbind-account-btn" data-account="@zhangsan">
+                                        解绑
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 第二个账号示例 -->
+                            <div class="flex items-center justify-between py-3 border-b">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">@lisi</p>
+                                        <p class="text-xs text-gray-500">5.2K 粉丝 · 已绑定</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="text-xs px-2 py-1 border border-blue-300 text-blue-600 rounded-full hover:bg-blue-50 mr-2 set-main-btn">
+                                        设为主账号
+                                    </button>
+                                    <button class="ml-2 text-sm text-red-600 hover:text-red-800 unbind-account-btn" data-account="@lisi">
+                                        解绑
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 添加账号按钮 -->
+                            <div class="mt-4" id="addAccountContainer">
+                                <button id="addAccountBtn" class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-700 hover:border-blue-500 hover:text-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    <span>添加Twitter账号</span>
+                                </button>
+                                <p class="text-xs text-gray-500 mt-2 text-center">最多支持添加3个Twitter账号，只能有1个主账号</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- API设置 -->
+                    <div class="bg-white rounded-2xl shadow-sm fade-in delay-1">
+                        <div class="px-6 py-5 border-b">
+                            <h2 class="text-lg font-semibold text-gray-800">AI大模型API设置</h2>
+                            <p class="mt-1 text-sm text-gray-500">管理AI大模型API配置和相关设置</p>
+                        </div>
+                        
+                        <div class="px-6 py-5 space-y-6">
+                            <!-- 步骤1：选择大模型 -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">第一步：选择AI大模型</label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    <div class="relative">
+                                        <input type="radio" name="ai-model" id="model-openai" class="hidden peer" checked>
+                                        <label for="model-openai" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-robot text-lg mb-1"></i>
+                                            <span class="block text-sm">OpenAI</span>
+                                            <span class="block text-xs text-gray-500">GPT-3.5/4</span>
+                                        </label>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="radio" name="ai-model" id="model-anthropic" class="hidden peer">
+                                        <label for="model-anthropic" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-brain text-lg mb-1"></i>
+                                            <span class="block text-sm">Anthropic</span>
+                                            <span class="block text-xs text-gray-500">Claude</span>
+                                        </label>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="radio" name="ai-model" id="model-deepseek" class="hidden peer">
+                                        <label for="model-deepseek" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-lightbulb text-lg mb-1"></i>
+                                            <span class="block text-sm">Deepseek</span>
+                                            <span class="block text-xs text-gray-500">国产大模型</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 步骤2：填写API密钥 -->
+                            <div id="apiKeySection">
+                                <!-- OpenAI API设置 -->
+                                <div id="openai-settings" class="api-settings">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">OpenAI API Key</label>
+                                        <div class="flex">
+                                            <input type="password" id="openai-api-key" value="••••••••••••••••••••" 
+                                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 toggle-password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                        <p class="mt-1 text-xs text-gray-500">上次更新: 2025-04-20</p>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">模型版本</label>
+                                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="gpt-4o" selected>GPT-4o (2024-11-20)</option>
+                                            <option value="gpt-4o-mini">GPT-4o mini (2024-07-18)</option>
+                                            <option value="gpt-4-turbo">GPT-4 Turbo (2024-04-09)</option>
+                                            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (0125)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Anthropic API设置 -->
+                                <div id="anthropic-settings" class="api-settings hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Anthropic API Key</label>
+                                        <div class="flex">
+                                            <input type="password" id="anthropic-api-key" placeholder="输入Anthropic API密钥" 
+                                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 toggle-password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">模型版本</label>
+                                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="claude-3-7-sonnet" selected>Claude 3.7 Sonnet (20250219)</option>
+                                            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet v2 (20241022)</option>
+                                            <option value="claude-3-5-haiku">Claude 3.5 Haiku (20241022)</option>
+                                            <option value="claude-3-opus">Claude 3 Opus (20240229)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Deepseek API设置 -->
+                                <div id="deepseek-settings" class="api-settings hidden">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Deepseek API Key</label>
+                                        <div class="flex">
+                                            <input type="password" id="deepseek-api-key" placeholder="输入Deepseek API密钥" 
+                                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <button class="px-4 py-2 bg-gray-100 text-gray-700 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200 toggle-password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">模型版本</label>
+                                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="deepseek-v3" selected>DeepSeek-V3 (2024-12)</option>
+                                            <option value="deepseek-v2-5">DeepSeek-V2.5 (2024-09)</option>
+                                            <option value="deepseek-vl2">DeepSeek-VL2 (多模态)</option>
+                                            <option value="deepseek-coder">DeepSeek Coder (编程专用)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- API额度使用 -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-sm font-medium text-gray-700 mb-2">API调用额度</h3>
+                                <div class="space-y-3">
+                                    <!-- OpenAI额度使用 -->
+                                    <div id="openai-usage" class="api-usage">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span>OpenAI API</span>
+                                            <span class="font-medium">42% (420/1,000)</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 42%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs mt-1">
+                                            <span>本月消费: $8.40</span>
+                                            <span>预算上限: $20.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Anthropic额度使用 -->
+                                    <div id="anthropic-usage" class="api-usage hidden">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span>Anthropic API</span>
+                                            <span class="font-medium">0% (0/1,000)</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs mt-1">
+                                            <span>本月消费: $0.00</span>
+                                            <span>预算上限: $30.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Deepseek额度使用 -->
+                                    <div id="deepseek-usage" class="api-usage hidden">
+                                        <div class="flex justify-between text-xs mb-1">
+                                            <span>Deepseek API</span>
+                                            <span class="font-medium">0% (0/1,000)</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs mt-1">
+                                            <span>本月消费: ¥0.00</span>
+                                            <span>预算上限: ¥200.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">下次额度重置: 8天后</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 发布策略区域 -->
+                <section class="space-y-6 mb-10 fade-in delay-2">
+                    <div class="bg-white rounded-2xl shadow-sm">
+                        <div class="px-6 py-5 border-b">
+                            <h2 class="text-lg font-semibold text-gray-800">发布策略设置</h2>
+                            <p class="mt-1 text-sm text-gray-500">自定义推文发布时间和频率</p>
+                        </div>
+                        
+                        <div class="px-6 py-5 space-y-6">
+                            <!-- 自动发布设置 -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">自动发布</h3>
+                                    <p class="text-sm text-gray-500">启用后，系统将按照设定的时间自动发布队列中的推文</p>
+                                </div>
+                                <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                                    <input type="checkbox" checked id="autoPublish" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                    <label for="autoPublish" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                                </div>
+                            </div>
+                            
+                            <!-- 优先时段设置 -->
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">优先发布时段</h3>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div class="relative">
+                                        <input type="checkbox" checked id="time-morning" class="hidden peer">
+                                        <label for="time-morning" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-sun text-lg mb-1"></i>
+                                            <span class="block text-sm">早晨</span>
+                                            <span class="block text-xs text-gray-500">6:00-9:00</span>
+                                        </label>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="checkbox" id="time-noon" class="hidden peer">
+                                        <label for="time-noon" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-cloud-sun text-lg mb-1"></i>
+                                            <span class="block text-sm">中午</span>
+                                            <span class="block text-xs text-gray-500">11:00-14:00</span>
+                                        </label>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="checkbox" checked id="time-evening" class="hidden peer">
+                                        <label for="time-evening" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-moon text-lg mb-1"></i>
+                                            <span class="block text-sm">晚上</span>
+                                            <span class="block text-xs text-gray-500">18:00-21:00</span>
+                                        </label>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="checkbox" id="time-night" class="hidden peer">
+                                        <label for="time-night" class="block text-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 peer-checked:bg-blue-50 peer-checked:border-blue-500 peer-checked:text-blue-600">
+                                            <i class="fas fa-star text-lg mb-1"></i>
+                                            <span class="block text-sm">深夜</span>
+                                            <span class="block text-xs text-gray-500">22:00-0:00</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">系统将优先在选中的时段发布推文，以获得最佳曝光</p>
+                            </div>
+                            
+                            <!-- 每日发布频率 -->
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">每日发布频率</h3>
+                                <div class="flex items-center">
+                                    <input type="range" min="1" max="10" value="4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <span class="ml-4 text-sm font-medium text-gray-900">4条/天</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">AI分析建议: 根据您的粉丝活跃度，建议每天发布3-5条推文</p>
+                            </div>
+                            
+                            <!-- 自动间隔 -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">智能间隔</h3>
+                                    <p class="text-sm text-gray-500">AI自动计算最佳发布间隔，避免内容拥挤</p>
+                                </div>
+                                <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                                    <input type="checkbox" checked id="smartInterval" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                    <label for="smartInterval" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- AI风格偏好区域 -->
+                <section class="space-y-6 mb-10 fade-in delay-3">
+                    <div class="bg-white rounded-2xl shadow-sm">
+                        <div class="px-6 py-5 border-b">
+                            <h2 class="text-lg font-semibold text-gray-800">AI风格偏好</h2>
+                            <p class="mt-1 text-sm text-gray-500">设置AI生成内容的风格和行为</p>
+                        </div>
+                        
+                        <div class="px-6 py-5 space-y-6">
+                            <!-- 推文风格偏好 -->
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">推文风格偏好</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between items-center text-sm mb-1">
+                                            <span>专业性</span>
+                                            <span>休闲</span>
+                                        </div>
+                                        <input type="range" min="1" max="5" value="4" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center text-sm mb-1">
+                                            <span>严肃</span>
+                                            <span>幽默</span>
+                                        </div>
+                                        <input type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center text-sm mb-1">
+                                            <span>简洁</span>
+                                            <span>详细</span>
+                                        </div>
+                                        <input type="range" min="1" max="5" value="2" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 内容主题偏好 -->
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-900 mb-2">内容主题偏好</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                        科技创新
+                                        <button class="ml-1 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </span>
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                        AI工具
+                                        <button class="ml-1 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </span>
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                        职场效率
+                                        <button class="ml-1 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </span>
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
+                                        未来趋势
+                                        <button class="ml-1 text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-times-circle"></i>
+                                        </button>
+                                    </span>
+                                    <button class="border border-dashed border-gray-300 px-3 py-1 rounded-full text-sm text-gray-600 hover:text-blue-600 hover:border-blue-300">
+                                        + 添加主题
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 自动学习 -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">AI持续学习</h3>
+                                    <p class="text-sm text-gray-500">启用后，AI将根据互动效果自动调整生成策略</p>
+                                </div>
+                                <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+                                    <input type="checkbox" checked id="aiLearning" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300"/>
+                                    <label for="aiLearning" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-300"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 保存按钮 -->
+                <div class="flex justify-end space-x-4">
+                    <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        取消
+                    </button>
+                    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        保存设置
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 在body结束标签前添加模态框 -->
+    
+    <!-- 添加账号模态框 -->
+    <div id="addAccountModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center">
+                <h3 class="font-semibold text-gray-800 text-lg">添加Twitter账号</h3>
+                <button id="closeAddAccountModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="addAccountForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="twitterHandle" class="block text-sm font-medium text-gray-700 mb-1">Twitter用户名</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">@</span>
+                                </div>
+                                <input type="text" id="twitterHandle" class="pl-8 pr-4 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="username">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                            <input type="text" id="apiKey" class="px-4 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="apiSecret" class="block text-sm font-medium text-gray-700 mb-1">API Secret</label>
+                            <input type="password" id="apiSecret" class="px-4 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="accessToken" class="block text-sm font-medium text-gray-700 mb-1">Access Token</label>
+                            <input type="text" id="accessToken" class="px-4 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="accessSecret" class="block text-sm font-medium text-gray-700 mb-1">Access Token Secret</label>
+                            <input type="password" id="accessSecret" class="px-4 py-2 block w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" id="cancelAddAccount" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            取消
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            添加账号
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 解绑确认模态框 -->
+    <div id="unbindConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div class="px-6 py-4 border-b">
+                <h3 class="font-semibold text-gray-800 text-lg">确认解绑账号</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 mb-4">确定要解绑 <span id="accountToUnbind" class="font-medium"></span> 吗？此操作将删除所有与该账号相关的信息，且无法恢复。</p>
+                
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelUnbind" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        取消
+                    </button>
+                    <button id="confirmUnbind" class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        确认解绑
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+        
+        // Twitter账号管理相关功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取当前账号数量
+            const countAccounts = document.querySelectorAll('.unbind-account-btn').length;
+            const addAccountBtn = document.getElementById('addAccountBtn');
+            
+            // 如果已有3个账号，禁用添加按钮
+            if (countAccounts >= 3) {
+                addAccountBtn.disabled = true;
+                addAccountBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                addAccountBtn.classList.remove('hover:border-blue-500', 'hover:text-blue-600');
+            }
+            
+            // 添加账号模态框
+            const addAccountModal = document.getElementById('addAccountModal');
+            const closeAddAccountModal = document.getElementById('closeAddAccountModal');
+            const cancelAddAccount = document.getElementById('cancelAddAccount');
+            const addAccountForm = document.getElementById('addAccountForm');
+            
+            // 打开添加账号模态框
+            addAccountBtn.addEventListener('click', function() {
+                addAccountModal.classList.remove('hidden');
+            });
+            
+            // 关闭添加账号模态框
+            function closeModal() {
+                addAccountModal.classList.add('hidden');
+                addAccountForm.reset();
+            }
+            
+            closeAddAccountModal.addEventListener('click', closeModal);
+            cancelAddAccount.addEventListener('click', closeModal);
+            
+            // 表单提交处理
+            addAccountForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 在此处添加账号验证和添加逻辑
+                // 模拟添加成功
+                alert('账号添加成功！');
+                closeModal();
+                
+                // 实际应用中，这里应该发送API请求验证并添加账号
+            });
+            
+            // 解绑账号功能
+            const unbindBtns = document.querySelectorAll('.unbind-account-btn');
+            const unbindConfirmModal = document.getElementById('unbindConfirmModal');
+            const accountToUnbind = document.getElementById('accountToUnbind');
+            const cancelUnbind = document.getElementById('cancelUnbind');
+            const confirmUnbind = document.getElementById('confirmUnbind');
+            
+            // 打开解绑确认模态框
+            unbindBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const account = this.getAttribute('data-account');
+                    accountToUnbind.textContent = account;
+                    unbindConfirmModal.classList.remove('hidden');
+                });
+            });
+            
+            // 关闭解绑确认模态框
+            cancelUnbind.addEventListener('click', function() {
+                unbindConfirmModal.classList.add('hidden');
+            });
+            
+            // 确认解绑处理
+            confirmUnbind.addEventListener('click', function() {
+                // 在此处添加解绑逻辑
+                // 模拟解绑成功
+                alert('账号已成功解绑！');
+                unbindConfirmModal.classList.add('hidden');
+                
+                // 实际应用中，这里应该发送API请求执行解绑操作
+            });
+            
+            // 设置主账号功能
+            const setMainBtns = document.querySelectorAll('.set-main-btn');
+            
+            setMainBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 在实际应用中，这里应该发送API请求设置主账号
+                    alert('已设置为主账号！');
+                    
+                    // 更新UI显示
+                    // 移除当前主账号标识
+                    const currentMain = document.querySelector('.bg-green-100.text-green-800');
+                    if (currentMain) {
+                        const currentMainParent = currentMain.parentElement;
+                        currentMain.remove();
+                        
+                        // 为原主账号添加"设为主账号"按钮
+                        const setMainBtn = document.createElement('button');
+                        setMainBtn.className = 'text-xs px-2 py-1 border border-blue-300 text-blue-600 rounded-full hover:bg-blue-50 mr-2 set-main-btn';
+                        setMainBtn.textContent = '设为主账号';
+                        currentMainParent.prepend(setMainBtn);
+                    }
+                    
+                    // 为当前点击的账号设置主账号标识
+                    const parent = this.parentElement;
+                    parent.removeChild(this);
+                    
+                    const mainBadge = document.createElement('span');
+                    mainBadge.className = 'bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full';
+                    mainBadge.textContent = '主账号';
+                    parent.prepend(mainBadge);
+                });
+            });
+            
+            // AI大模型设置相关功能
+            const modelRadios = document.querySelectorAll('input[name="ai-model"]');
+            const apiSettings = document.querySelectorAll('.api-settings');
+            const apiUsage = document.querySelectorAll('.api-usage');
+            
+            // 切换显示对应的API设置区域
+            modelRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // 隐藏所有API设置
+                    apiSettings.forEach(setting => {
+                        setting.classList.add('hidden');
+                    });
+                    
+                    // 隐藏所有API用量显示
+                    apiUsage.forEach(usage => {
+                        usage.classList.add('hidden');
+                    });
+                    
+                    // 根据选择显示对应的设置和用量
+                    const modelId = this.id.split('-')[1]; // 获取模型名称部分
+                    document.getElementById(`${modelId}-settings`).classList.remove('hidden');
+                    document.getElementById(`${modelId}-usage`).classList.remove('hidden');
+                });
+            });
+            
+            // 密码显示切换
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

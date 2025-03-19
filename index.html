@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        .preview-container {
+            height: calc(100vh - 10rem);
+        }
+        .device-frame {
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .device-frame:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+    <header class="bg-white shadow-sm px-4 py-4 sm:px-6 sm:py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl font-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                        </svg>
+                    </div>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900">Twitter AI自动运营平台</h1>
+                </div>
+                
+                <div class="flex items-center">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mr-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                        在线
+                    </span>
+                    <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                        </svg>
+                        更新模型
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- 页面预览标题 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Twitter AI自动运营 - 功能总览</h2>
+                <p class="mt-2 text-sm text-gray-500">利用AI智能助手，轻松实现Twitter内容创作、账号管理、数据分析</p>
+            </div>
+            
+            <!-- 页面预览区 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- PC端预览 -->
+                <div class="flex flex-col rounded-2xl bg-white shadow-md overflow-hidden">
+                    <div class="p-4 bg-gray-50 border-b flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="text-center flex-1">
+                            <h3 class="text-sm font-medium text-gray-700">PC端预览</h3>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                                </svg>
+                            </button>
+                            <button class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative">
+                        <!-- 加载动画 -->
+                        <div class="loading" id="pcLoading">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <iframe src="pages/analytics.html" frameborder="0" class="w-full h-full" id="pcPreview"></iframe>
+                    </div>
+                </div>
+                
+                <!-- 移动端预览 -->
+                <div class="flex flex-col rounded-2xl bg-white shadow-md overflow-hidden">
+                    <div class="p-4 bg-gray-50 border-b flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                        <div class="text-center flex-1">
+                            <h3 class="text-sm font-medium text-gray-700">移动端预览</h3>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                                </svg>
+                            </button>
+                            <button class="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-gray-100 flex justify-center py-8">
+                        <div class="device" style="width: 300px; height: 600px;">
+                            <div class="device-notch"></div>
+                            <div class="device-screen relative">
+                                <!-- 加载动画 -->
+                                <div class="loading" id="mobileLoading">
+                                    <div class="loading-spinner"></div>
+                                </div>
+                                <iframe src="pages/mobile.html" frameborder="0" class="w-full h-full" id="mobilePreview"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 功能页面导航卡片 -->
+            <div class="mt-12">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">功能模块</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 主页卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="analytics.html">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
+                                    激活
+                                </span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">主页</h3>
+                            <p class="mt-1 text-sm text-gray-500">查看账号数据概览，掌握内容表现与关键指标</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/analytics.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                    
+                    <!-- AI对话卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="chat.html">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    AI
+                                </span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">AI对话</h3>
+                            <p class="mt-1 text-sm text-gray-500">与AI助手交流，获取运营建议和内容灵感</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/chat.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 生成推文卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="generate.html">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                    </svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                                    热门
+                                </span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">生成推文</h3>
+                            <p class="mt-1 text-sm text-gray-500">一键生成高质量推文，支持多种风格和主题定制</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/generate.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 推文管理卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="management.html">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center text-yellow-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                    </svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    新功能
+                                </span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">推文管理</h3>
+                            <p class="mt-1 text-sm text-gray-500">管理内容库，安排推文发布计划，追踪内容状态</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/management.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 设置卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="settings.html">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">设置</h3>
+                            <p class="mt-1 text-sm text-gray-500">配置账号连接、AI偏好、通知提醒和其他系统设置</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/settings.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 移动版卡片 -->
+                    <div class="highlight-card rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden cursor-pointer" data-page="mobile.html" data-target="mobile">
+                        <div class="p-5">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center text-teal-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                                    响应式
+                                </span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-medium text-gray-900">移动版</h3>
+                            <p class="mt-1 text-sm text-gray-500">适配手机屏幕的精简版界面，随时随地管理Twitter</p>
+                        </div>
+                        <div class="px-5 py-3 bg-gray-50 text-right">
+                            <a href="pages/mobile.html" target="_blank" class="text-sm font-medium text-blue-600 hover:text-blue-500">查看页面 &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="bg-white border-t mt-8 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-xs text-gray-500">© 2023 Twitter AI自动运营平台 | 设计与开发</p>
+        </div>
+    </footer>
+    
+    <script>
+        // 处理iframe加载完成后隐藏加载动画
+        document.getElementById('pcPreview').onload = function() {
+            document.getElementById('pcLoading').style.display = 'none';
+        };
+        
+        document.getElementById('mobilePreview').onload = function() {
+            document.getElementById('mobileLoading').style.display = 'none';
+        };
+        
+        // 点击功能卡片切换预览
+        document.querySelectorAll('.highlight-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const page = this.getAttribute('data-page');
+                const target = this.getAttribute('data-target') || 'pc';
+                
+                if (target === 'pc') {
+                    document.getElementById('pcLoading').style.display = 'flex';
+                    document.getElementById('pcPreview').src = `pages/${page}`;
+                } else if (target === 'mobile') {
+                    document.getElementById('mobileLoading').style.display = 'flex';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

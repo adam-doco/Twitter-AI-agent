@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">数据面板</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b z-10">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                <button class="md:hidden text-gray-500 hover:text-gray-700" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex items-center ml-auto">
+                    <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 mr-2">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <!-- 页面内容替换位置 -->
+            <div id="content">
+                <!-- 各页面内容将在这里替换 -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+    </script>
+</body>
+</html> 

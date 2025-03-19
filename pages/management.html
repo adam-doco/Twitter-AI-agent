@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推文管理 - Twitter AI自动运营平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', 'SF Pro', '思源黑体', sans-serif;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: width 0.3s ease;
+        }
+        
+        /* 推文卡片动效 */
+        .tweet-card {
+            transition: all 0.3s ease;
+        }
+        
+        .tweet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                position: fixed;
+                z-index: 40;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* 日期时间选择器样式 */
+        input[type="datetime-local"] {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            width: 100%;
+        }
+        
+        /* 标签样式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* 时间轴样式 */
+        .timeline-item {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 12px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar bg-white shadow-md w-64 flex flex-col h-full border-r" id="sidebar">
+        <div class="p-4 border-b flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <h1 class="ml-3 font-bold text-gray-800">Twitter AI</h1>
+            </div>
+            <button class="md:hidden text-gray-500 hover:text-gray-700" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="analytics.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-chart-line w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="chat.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-comment-dots w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">AI对话</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="generate.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-magic w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">生成推文</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="management.html" class="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-list-check w-5 h-5 text-blue-600"></i>
+                        <span class="ml-3">推文管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-blue-50 group transition-all">
+                        <i class="fas fa-gear w-5 h-5 text-gray-500 group-hover:text-blue-600"></i>
+                        <span class="ml-3">设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-8 h-8 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-700">张三</p>
+                    <p class="text-xs text-gray-500">高级运营经理</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 flex flex-col overflow-hidden main-content">
+        <!-- 顶部导航栏 -->
+        <header class="bg-white shadow-sm border-b z-10">
+            <div class="px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between" style="height: 64px;">
+                <button class="md:hidden text-gray-500 hover:text-gray-700" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex items-center ml-auto">
+                    <!-- 右上角按钮已移除 -->
+                </div>
+            </div>
+        </header>
+        
+        <!-- 内容区 -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-900 mb-6">推文管理</h1>
+                
+                <!-- 标签页选择区 -->
+                <div class="mb-6 bg-white rounded-lg shadow-sm p-1 inline-flex">
+                    <button class="px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white" id="pending-tab">
+                        待发布
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-100" id="published-tab">
+                        已发布
+                    </button>
+                </div>
+                
+                <!-- 待发布区域 -->
+                <div id="pending-content" class="space-y-6">
+                    <!-- 顶部操作栏 -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-paper-plane mr-1.5"></i>
+                                <span>批量发布</span>
+                            </button>
+                            <button class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-calendar-alt mr-1.5"></i>
+                                <span>调整时间</span>
+                            </button>
+                            <button class="px-3 py-1.5 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-trash-can mr-1.5"></i>
+                                <span>批量删除</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索推文..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <div class="ml-2">
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <option>所有标签</option>
+                                    <option>#科技创新</option>
+                                    <option>#AI工具</option>
+                                    <option>#职场效率</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 待发布推文列表 -->
+                    <div class="space-y-4">
+                        <!-- 推文卡片1 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">5款2025年最值得关注的AI工具大比拼！👀 #1 专注效率提升，#3 简直改变工作流程！哪款是你的最爱？投票告诉我吧！ #AI工具 #效率提升 #科技创新</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 发布时间设定 -->
+                                    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center space-x-4">
+                                            <div>
+                                                <span class="text-xs text-gray-500 block mb-1">计划发布时间</span>
+                                                <input type="datetime-local" class="text-sm" value="2025-05-15T18:30">
+                                            </div>
+                                            <div>
+                                                <span class="status-badge bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-clock mr-1"></i> 待发布
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 操作按钮 -->
+                                        <div class="flex space-x-2">
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                                <i class="fas fa-pen-to-square mr-1.5"></i>
+                                                <span>编辑</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                                <i class="fas fa-paper-plane mr-1.5"></i>
+                                                <span>立即发布</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                                <i class="fas fa-trash-can mr-1.5"></i>
+                                                <span>删除</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推文卡片2 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">科技创新不只是技术进步，更是思维方式的革新。你认为未来5年最值得关注的技术领域是什么？AI？元宇宙？量子计算？还是生物科技？ #未来趋势 #科技创新 #思维革新</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 发布时间设定 -->
+                                    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center space-x-4">
+                                            <div>
+                                                <span class="text-xs text-gray-500 block mb-1">计划发布时间</span>
+                                                <input type="datetime-local" class="text-sm" value="2025-05-16T19:00">
+                                            </div>
+                                            <div>
+                                                <span class="status-badge bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-clock mr-1"></i> 待发布
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 操作按钮 -->
+                                        <div class="flex space-x-2">
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                                <i class="fas fa-pen-to-square mr-1.5"></i>
+                                                <span>编辑</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                                <i class="fas fa-paper-plane mr-1.5"></i>
+                                                <span>立即发布</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                                <i class="fas fa-trash-can mr-1.5"></i>
+                                                <span>删除</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 推文卡片3 -->
+                        <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <input type="checkbox" class="w-4 h-4 mt-1 text-blue-600 rounded">
+                                </div>
+                                <div class="ml-3 flex-1">
+                                    <!-- 推特风格UI -->
+                                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                        <div class="p-4">
+                                            <div class="flex items-center">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                <div class="ml-3">
+                                                    <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <p class="text-gray-900">📊 调查显示：78%的专业人士认为AI将在未来3年重塑他们的工作方式。你已经开始使用AI工具了吗？分享一下你最常用的AI应用吧！ #AI革命 #职场效率 #科技应用</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 发布时间设定 -->
+                                    <div class="mt-4 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="flex items-center space-x-4">
+                                            <div>
+                                                <span class="text-xs text-gray-500 block mb-1">计划发布时间</span>
+                                                <input type="datetime-local" class="text-sm" value="2025-05-17T12:45">
+                                            </div>
+                                            <div>
+                                                <span class="status-badge bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-clock mr-1"></i> 待发布
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 操作按钮 -->
+                                        <div class="flex space-x-2">
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                                                <i class="fas fa-pen-to-square mr-1.5"></i>
+                                                <span>编辑</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100">
+                                                <i class="fas fa-paper-plane mr-1.5"></i>
+                                                <span>立即发布</span>
+                                            </button>
+                                            <button type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg border border-red-300 bg-red-50 text-red-700 hover:bg-red-100">
+                                                <i class="fas fa-trash-can mr-1.5"></i>
+                                                <span>删除</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 已发布区域 (默认隐藏) -->
+                <div id="published-content" class="space-y-6 hidden">
+                    <!-- 顶部操作栏 -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <button class="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all flex items-center">
+                                <i class="fas fa-file-export mr-1.5"></i>
+                                <span>导出数据</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="relative">
+                                <input type="text" placeholder="搜索推文..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            <div class="ml-2">
+                                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <option>所有时间</option>
+                                    <option>今天</option>
+                                    <option>本周</option>
+                                    <option>本月</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 时间轴显示区 -->
+                    <div class="space-y-8 pl-4">
+                        <!-- 日期分组：今天 -->
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900 mb-4">今天</h3>
+                            <div class="space-y-6">
+                                <!-- 推文项目1 -->
+                                <div class="timeline-item pb-6">
+                                    <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                                        <div>
+                                            <!-- 推特风格UI -->
+                                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                                <div class="p-4">
+                                                    <div class="flex items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                        <div class="ml-3">
+                                                            <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <p class="text-gray-900">5个提升工作效率的AI工具，第3个让我惊艳！#AI工具 #效率提升</p>
+                                                    </div>
+                                                    <div class="mt-4 flex">
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-comment"></i>
+                                                            <span class="ml-2">24</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-retweet"></i>
+                                                            <span class="ml-2">76</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm">
+                                                            <i class="far fa-heart"></i>
+                                                            <span class="ml-2">142</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 状态信息 -->
+                                            <div class="mt-4 flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <span class="status-badge bg-green-100 text-green-800 mr-2">
+                                                        <i class="fas fa-check-circle mr-1"></i> 已发布
+                                                    </span>
+                                                    <span class="text-xs text-gray-500">今天 09:00</span>
+                                                </div>
+                                                
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <span>互动率:</span>
+                                                    <span class="ml-1 text-green-600 font-medium">4.2% (高)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 日期分组：昨天 -->
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900 mb-4">昨天</h3>
+                            <div class="space-y-6">
+                                <!-- 推文项目1 -->
+                                <div class="timeline-item pb-6">
+                                    <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                                        <div>
+                                            <!-- 推特风格UI -->
+                                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                                <div class="p-4">
+                                                    <div class="flex items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                        <div class="ml-3">
+                                                            <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <p class="text-gray-900">科技创新不止于硬件，更在于思维方式的革新。你认为未来5年最具颠覆性的技术是？#科技创新 #未来趋势</p>
+                                                    </div>
+                                                    <div class="mt-4 flex">
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-comment"></i>
+                                                            <span class="ml-2">56</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-retweet"></i>
+                                                            <span class="ml-2">32</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm">
+                                                            <i class="far fa-heart"></i>
+                                                            <span class="ml-2">189</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 状态信息 -->
+                                            <div class="mt-4 flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <span class="status-badge bg-green-100 text-green-800 mr-2">
+                                                        <i class="fas fa-check-circle mr-1"></i> 已发布
+                                                    </span>
+                                                    <span class="text-xs text-gray-500">昨天 18:30</span>
+                                                </div>
+                                                
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <span>互动率:</span>
+                                                    <span class="ml-1 text-green-600 font-medium">6.8% (极高)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 推文项目2 -->
+                                <div class="timeline-item pb-6">
+                                    <div class="bg-white rounded-2xl shadow-sm p-5 tweet-card">
+                                        <div>
+                                            <!-- 推特风格UI -->
+                                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                                <div class="p-4">
+                                                    <div class="flex items-center">
+                                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="w-10 h-10 rounded-full">
+                                                        <div class="ml-3">
+                                                            <p class="font-bold text-gray-900">张三 <span class="text-gray-500 font-normal">@zhangsan</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <p class="text-gray-900">周三灵感：工作中感到倦怠？试试"番茄工作法" - 25分钟专注工作，5分钟休息。你有什么提高效率的秘诀？ #工作效率 #时间管理</p>
+                                                    </div>
+                                                    <div class="mt-4 flex">
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-comment"></i>
+                                                            <span class="ml-2">18</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm mr-6">
+                                                            <i class="far fa-retweet"></i>
+                                                            <span class="ml-2">24</span>
+                                                        </div>
+                                                        <div class="flex items-center text-gray-500 text-sm">
+                                                            <i class="far fa-heart"></i>
+                                                            <span class="ml-2">67</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 状态信息 -->
+                                            <div class="mt-4 flex items-center justify-between">
+                                                <div class="flex items-center">
+                                                    <span class="status-badge bg-green-100 text-green-800 mr-2">
+                                                        <i class="fas fa-check-circle mr-1"></i> 已发布
+                                                    </span>
+                                                    <span class="text-xs text-gray-500">昨天 10:15</span>
+                                                </div>
+                                                
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <span>互动率:</span>
+                                                    <span class="ml-1 text-yellow-600 font-medium">2.1% (中)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 移动端侧边栏切换
+        document.getElementById('openSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+        });
+        
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+        });
+        
+        // 标签页切换
+        document.getElementById('pending-tab').addEventListener('click', function() {
+            document.getElementById('pending-tab').classList.add('bg-blue-600', 'text-white');
+            document.getElementById('pending-tab').classList.remove('text-gray-700', 'hover:bg-gray-100');
+            document.getElementById('published-tab').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('published-tab').classList.add('text-gray-700', 'hover:bg-gray-100');
+            
+            document.getElementById('pending-content').classList.remove('hidden');
+            document.getElementById('published-content').classList.add('hidden');
+        });
+        
+        document.getElementById('published-tab').addEventListener('click', function() {
+            document.getElementById('published-tab').classList.add('bg-blue-600', 'text-white');
+            document.getElementById('published-tab').classList.remove('text-gray-700', 'hover:bg-gray-100');
+            document.getElementById('pending-tab').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('pending-tab').classList.add('text-gray-700', 'hover:bg-gray-100');
+            
+            document.getElementById('published-content').classList.remove('hidden');
+            document.getElementById('pending-content').classList.add('hidden');
+        });
+    </script>
+</body>
+</html> 
